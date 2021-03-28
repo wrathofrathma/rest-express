@@ -4,9 +4,10 @@
  * Module dependencies.
  */
 
-var app = require('../app');
-var debug = require('debug')('rest-express:server');
-var http = require('http');
+import app from "../app";
+import debuglib from 'debug';
+import http from 'http';
+const debug = debuglib('rest-express:server')
 
 /**
  * Get port from environment and store in Express.
