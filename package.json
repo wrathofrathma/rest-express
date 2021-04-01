@@ -11,6 +11,7 @@
     "prod": "NODE_ENV=production npm-run-all build server",
     "start": "npm run prod",
     "watch:dev": "nodemon",
+    "test": "jest",
     "dbinit": "node ./dist/database/migrations.js",
     "migrations": "npm-run-all clean transpile dbinit"
   },

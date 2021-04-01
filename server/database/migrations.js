@@ -8,5 +8,5 @@ open({
     driver: sqlite3.Database
 })
 .then(async (db) => {
-    await db.migrate()
+    await db.migrate();
 });
