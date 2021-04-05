@@ -117,9 +117,9 @@ describe('Database:UsersCRUD', () => {
 
     // Create/insert
     test('Database:UsersCRUD:CreateRead', async () => {
-        await db.exec(`INSERT INTO users (username, password) VALUES ('${username}','${password}');`)
+        await db.run("INSERT INTO users (username, password) VALUES (?,?);", [username, password])
         //read/fetch
-        res = await db.get('SELECT * FROM users;');
+        res = await db.get('SELECT * FROM users WHERE username = ?;', username);
         expect(res).toEqual(expect.objectContaining({
             username: expect.stringMatching(username),
             password: expect.stringMatching(password)
@@ -128,8 +128,8 @@ describe('Database:UsersCRUD', () => {
 
     //Update
     test('Database:UsersCRUD:Update', async () => {
-        await db.run(`UPDATE users SET password = '${new_password}' WHERE username = '${username}';`);
-        res = await db.get(`SELECT password FROM users WHERE username = '${username}';`);
+        await db.run("UPDATE users SET password = ? WHERE username = ?;", [new_password, username]);
+        res = await db.get("SELECT password FROM users WHERE username = ?;", username);
         expect(res).toEqual(expect.objectContaining({
             password: expect.stringMatching(new_password)
         }));
