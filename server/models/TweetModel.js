@@ -1,5 +1,4 @@
 import { openDb } from '../database';
-import Exception from '../exceptions/GenericException';
 
 class TweetModel {
     constructor({id, user_id, contents}){
@@ -10,11 +9,7 @@ class TweetModel {
 
    static async create({user_id, contents}) {
         if(!contents || !user_id) {
-            throw new Exception({
-                message: "Missing tweet contents or user_id",
-                code: "E_NOT_PROCESSABLE",
-                status: 422
-            });
+            throw new Error("Missing tweet contents or user_id");
         }
 
         // Insert into the database
@@ -32,22 +27,14 @@ class TweetModel {
 
     static async get({id}) {
         if(!id) {
-            throw new Exception({
-                message: "Missing tweet id parameter",
-                code: "E_UNPROCESSABLE_PARAMS",
-                status: 422
-            })
+            throw new Error("Missing tweet id")
         }
 
         const db = await openDb();
         const res = await db.get("SELECT * FROM tweets WHERE id = ?;", id);
         
         if(!res) {
-            throw new Exception({
-                message: "Tweet doesn't exist",
-                code: "E_RESOURCE_DOES_NOT_EXIST",
-                status: 404
-            })
+            throw new Error("Tweet not found")
         }
 
         return new TweetModel({
@@ -64,11 +51,7 @@ class TweetModel {
 
     async update({contents}) {
         if(!contents){
-            throw new Exception({
-                message: "Missing tweet contents",
-                code: "E_UNPROCESSABLE_PARAMS",
-                status: 422
-            })
+            throw new Error("Missing tweet contents");
         }
 
         const db = await openDb();
@@ -77,6 +60,14 @@ class TweetModel {
         .then((res) => {
             self.contents = contents;
         })
+    }
+
+    json() {
+        return {
+            id: this.id,
+            user_id: this.user_id,
+            contents: this.contents
+        }
     }
 }
 

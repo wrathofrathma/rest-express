@@ -1,5 +1,4 @@
 import { openDb } from '../database';
-import Exception from '../exceptions/GenericException';
 import Tweet from './TweetModel';
 
 class UserModel {
@@ -24,21 +23,11 @@ class UserModel {
         else if(username) {
             res = await db.get("SELECT * FROM users where username = ?;", username);
         }
-        else {
-            throw new Exception({
-                message: "Missing user_id or username",
-                code: "E_UNPROCESSABLE_PARAMS",
-                status: 422
-            })
-        }
 
         if(!res) {
-            throw new Exception({
-                message: "User doesn't exist",
-                code: "E_RESOURCE_DOES_NOT_EXIST",
-                status: 404
-            })
+            throw new Error("User not found");
         }
+
         return new UserModel({
             username: res.username,
             password: res.password,
@@ -53,24 +42,11 @@ class UserModel {
     static async create({username, password}) {
         // Check for username and password
         if(!username || !password) {
-            throw new Exception({
-                message: "Missing username or password",
-                code: "E_NOT_PROCESSABLE",
-                status: 422
-            })
+            throw new Error("Missing username or password");
         }
         const db = await openDb();
 
         return await db.run("INSERT INTO users (username, password) VALUES (?, ?);", [username, password])
-        .catch((err) => {
-            if(err.message==='SQLITE_CONSTRAINT: UNIQUE constraint failed: users.username'){
-                throw new Exception({
-                    message: 'User already exists',
-                    code: 'E_DUPLICATE_RESOURCE',
-                    status: 409
-                });
-            }
-        })
         .then((res) => {
             //If we make it here, then we created a new user successfully.
             return new UserModel({
@@ -79,7 +55,9 @@ class UserModel {
                 id: res.lastID
             });
         })
-
+        .catch((err) => {
+            throw new Error("Duplicate user");
+        })
     }
 
     /**
@@ -114,11 +92,7 @@ class UserModel {
             params = [password, self.id];
         }
         else{
-            throw new Exception({
-                message: "Missing updated property.",
-                code: "E_NOT_PROCESSABLE",
-                status: 422
-            });
+            throw new Error("Missing updated property");
         }
         await db.run(stmt, params)
         .then(function () {
@@ -146,6 +120,14 @@ class UserModel {
         }));
 
         return user_tweets;
+    }
+
+    json() {
+        return {
+            id: this.id,
+            username: this.username,
+            password: this.password
+        }
     }
 }
 

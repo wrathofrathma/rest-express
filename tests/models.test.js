@@ -64,7 +64,7 @@ describe('Models:User', () => {
         const get_user = async () => {
             await User.get({username});
         }
-        await expect(get_user()).rejects.toThrow("User doesn't exist");
+        await expect(get_user()).rejects.toThrow("User not found");
     })
 })
 
@@ -146,8 +146,8 @@ describe('Models:Tweets', () => {
         const getTweet = async (id) => {
             return await Tweet.get({id});
         }
-        // Should throw tweet doesn't exist exception
-        expect(getTweet(tweet2.id)).rejects.toThrow("Tweet doesn't exist");
+        // Should throw tweet not found exception
+        expect(getTweet(tweet2.id)).rejects.toThrow("Tweet not found");
     })
 
     test('Models:Tweets:UserDelete', async () => {
