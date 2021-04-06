@@ -113,10 +113,10 @@ class UserModel {
         if(!res)
             return [];
         
-        const user_tweets = res.map(({t}) => new Tweet({
+        const user_tweets = res.map(t => new Tweet({
             id: t.id,
             user_id: t.user_id,
-            content: t.content
+            contents: t.contents
         }));
 
         return user_tweets;
