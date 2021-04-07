@@ -1,11 +1,13 @@
-import User from '../models/UserModel';
+const User = require("../../models").User;
 import Exception from '../exceptions/GenericException';
 import * as argon2 from 'argon2';
 import * as jwt from 'jsonwebtoken';
 
 const AuthService = {
     async login({username, password}) {
-        const user = await User.get({username});
+        const user = await User.findOne({
+            where: {username}
+        });
 
         const correct_pwd = await argon2.verify(user.password, password);
         if(!correct_pwd){
@@ -51,7 +53,8 @@ const AuthService = {
                 status: 404
             });
         }
-        if(user.id !== resource.user_id) {
+
+        if(user.id !== resource.User.id) {
             throw new Exception({
                 message: "Invalid access",
                 status: 401

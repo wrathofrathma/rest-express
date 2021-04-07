@@ -1,5 +1,5 @@
 import * as jwt from 'jsonwebtoken';
-import User from '../models/UserModel';
+const User = require("../../models").User
 
 function parseAuthToken(req) {
     if(req.headers.authorization  && req.headers.authorization.split(' ')[0] === "Bearer")
@@ -11,7 +11,11 @@ export default async function (req, res, next) {
     return await jwt.verify(token, "SomeRandomSekrit", async (err, decoded) => {
         if(err) 
             next(new Error("Invalid token"));
-        req.user = await User.get({id: decoded.data.id});
+        req.user = await User.findOne({
+            where: {
+                id: decoded.data.id
+            }
+        });
         return next();
     })
     .catch((err) => {

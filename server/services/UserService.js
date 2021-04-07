@@ -1,23 +1,18 @@
 import Exception from '../exceptions/GenericException';
+import TweetService from './TweetService';
 
 const UserService = {
     async delete({user}) {
-        return await user.delete()
+        return await user.destroy()
         .then(() => {
-            return {
-                id: user.id,
-                username: user.username
-            }
+            return UserService.jsonify(user);
         })
     },
 
     async update({user, username, password}) {
         return await user.update({username, password})
         .then(() => {
-            return {
-                id: user.id,
-                username: user.username,
-            }
+            return UserService.jsonify(user);
         })
         .catch((err) => {
             throw new Exception({
@@ -28,10 +23,20 @@ const UserService = {
     },
 
     async tweets({user}) {
-        return await user.tweets()
-        .then((utweets) => {
-            return utweets.map(t => t.json());
+        return await user.getTweets()
+        .then((ts) => {
+            return ts.map(t => {
+                t.User = user;
+                return TweetService.jsonify(t);
+            })
         })
+    },
+
+    jsonify(user) {
+        return {
+            id: user.id,
+            username: user.username
+        }
     }
 }
 
